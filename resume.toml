@@ -1,0 +1,166 @@
+[header]
+title = "Kyle M. Stiers, Ph.D. - Resume Terminal"
+subtitle = "Sr. Data Scientist | Computational Biology | Bioinformatics"
+
+[contact]
+scholar = "https://scholar.google.com/citations?user=6eZxnlIAAAAJ&hl=en&oi=ao"
+github = "https://github.com/KyleStiers"
+linkedin = "https://www.linkedin.com/in/kyle-stiers/"
+location = "Missouri, USA"
+
+[profile]
+summary = [
+	"Data scientist delivering value through deep learning, bioinformatics pipelines, and cloud infrastructure.",
+	"Formal training in protein biophysics, biochemistry, and structural biology.",
+	"Eight years combining biochemical research with computational biology, plus three years of industry data science and data engineering experience."
+]
+highlights = [
+	"Proficient in Python and R programming",
+	"Proficient in Nextflow for data-driven computational pipelines",
+	"Experienced leading and training teams on high-level scientific work and computational toolchains",
+	"Hands-on with Linux, Docker, AWS infrastructure, and distributed computing"
+]
+
+[[experience]]
+organization = "Bayer Crop Science"
+role = "Data Scientist in Gene Editing"
+dates = "Current"
+manager = "Dr. Ryan Williams"
+bullets = [
+	"Leading bioinformatics pipeline development in metagenomics, deep-learning protein-structure prediction, and gene editing applications",
+	"Building custom analytics software for gene-editing workflows in Python",
+	"Enabling Plant Biotechnology and Breeding teams to make key product-pipeline advancement decisions",
+	"Providing ad-hoc expertise on analytics standards and data-capture/egress best practices",
+	"Developing sequencing-platform automation infrastructure",
+	"Member of an internal deep-learning working group delivering state-of-the-art genomics applications"
+]
+
+[[experience]]
+organization = "MU Bioinformatics & Analytics Core"
+role = "Computational Biologist"
+dates = "Prior role"
+manager = "Dr. Lyndon Coghill"
+bullets = [
+	"Built a custom GATK4.2 germline variant-calling pipeline using Nextflow, Bash, Python, and R",
+	"Designed workflows to handle both whole-exome and whole-genome sequencing data",
+	"Aligned pipeline design with Broad Institute best practices",
+	"Developed a Nextflow-wrapped Nvidia Clara Parabricks variant-calling pipeline",
+	"Implemented GPU-accelerated tooling to reduce processing time from raw reads to called variants",
+	"Built a custom pipeline for campus genomic-sequencing processing with automated QC and reporting"
+]
+
+[[research]]
+organization = "University of Missouri"
+role = "Postdoctoral Scientist"
+mentor = "Dr. John Tanner"
+publications = "5"
+bullets = [
+	"Investigated structural-basis inhibition of proline-cycle enzymes as cancer-therapy targets",
+	"Developed computational techniques for structural differences across aldehyde dehydrogenase superfamily members",
+	"Developing software for novel molecular-dynamics analyses of substrate channeling in Proline utilization A enzyme"
+]
+
+[[research]]
+organization = "University of Missouri"
+role = "Graduate Research Assistant"
+mentor = "Dr. Lesa Beamer"
+publications = "15"
+bullets = [
+	"Identified molecular mechanisms of disease in phosphoglucomutase-1 (PGM1) deficiency",
+	"Determined 16 structures of a superfamily member in multiple states at room and cryogenic temperatures",
+	"Developed custom scripts and software using R and Shiny to automate instrument-output analyses"
+]
+
+[skills]
+software = [
+	"Python", "Bash", "Nextflow", "R", "AWS Cloud", "Nim", "Docker",
+	"scikit-learn", "Deep reinforcement learning", "llama.cpp", "LLMs for genomic sequence data (ESM2, HyenaDNA, ProtBERT)",
+	"SLURM scheduling", "HPC"
+]
+molecular_biology = [
+	"DNA and RNA extraction", "PCR", "subcloning", "transformation",
+	"bacterial protein expression", "bacmid cloning and expression in insect cells",
+	"protein purification", "anion exchange chromatography", "size-exclusion chromatography",
+	"FPLC", "protein labeling", "SDS-PAGE", "enzyme kinetics"
+]
+structural_biology = [
+	"X-ray diffraction", "protein crystallization", "CryoEM", "protein NMR",
+	"structure determination", "model building and refinement", "thermal shift assay",
+	"microscale thermophoresis", "dynamic and multi-angle light scattering",
+	"mass spectrometry analysis", "small-angle X-ray scattering"
+]
+
+[[education]]
+degree = "Ph.D., Biochemistry"
+institution = "University of Missouri"
+dates = "August 2014 - May 2019"
+notes = [
+	"Department of Biochemistry",
+	"Thesis: Molecular Mechanisms of Enzyme Dysfunction in Human Phosphoglucomutase-1 Deficiency"
+]
+
+[[education]]
+degree = "B.S., Biochemistry"
+institution = "University of Missouri"
+dates = "August 2010 - May 2014"
+notes = [
+	"Department of Biochemistry",
+	"Minor certificates in Computer Science, Information Technology, and Chemistry"
+]
+
+awards = [
+	"Bayer Plant Biotech Leadership Life Award - Unlocking 3x faster sequence-capture capability team (December 2023)",
+	"Bayer Top Performer Award (December 2022)",
+	"Donald K. Anderson Graduate Research Assistant Award (April 2019)",
+	"Featured article in Structural Dynamics (2019 publications)",
+	"Invited Student Lecturer, American Crystallographic Association Meeting (July 2018)",
+	"Selected participant, UC San Diego Structural Bioinformatics Workshop and Hackathon - Python (May 2018)",
+	"Selected participant, UC San Diego Structural Bioinformatics Workshop and Hackathon - Java (June 2017)",
+	"Etter Student Lecturer Award, American Crystallographic Association Meeting (May 2017)",
+	"Invited Student Lecturer, American Crystallographic Association Meeting (May 2017)",
+	"American Crystallographic Association Travel Grant Recipient (March 2017)",
+	"Outstanding Poster in Molecular & Cellular Biology Award, Life Sciences Week (April 2017)",
+	"American Heart Association Pre-Doctoral Fellowship Recipient (July 2017 - June 2019; $52,000)",
+	"Excellence in Teaching with Technology Award (TA) Recipient (November 2016)",
+	"Featured as journal cover image in the Journal of Applied Crystallography (2016 publications)",
+	"Nominated for Rollins Society (March 2016)",
+	"NIH NIGMS T32 Training Grant Recipient (August 2015 - June 2017; $60,000)"
+]
+
+[[positions]]
+title = "Data Scientist in Gene Editing"
+organization = "Data Science & Analytics, Bayer Crop Science"
+mentor = "Dr. Robert Gaeta"
+
+[[positions]]
+title = "Computational Biologist"
+organization = "Bioinformatics & Analytics Core, University of Missouri"
+mentor = "Dr. Lyndon Coghill"
+
+[[positions]]
+title = "Postdoctoral Scientist"
+organization = "Department of Biochemistry, University of Missouri"
+mentor = "Dr. John Tanner"
+
+[[positions]]
+title = "Graduate Research Assistant"
+organization = "Department of Biochemistry, University of Missouri"
+mentor = "Dr. Lesa Beamer"
+
+[[positions]]
+title = "Undergraduate Research Assistant"
+organization = "Department of Biochemistry, University of Missouri"
+mentor = "Dr. Lesa Beamer"
+
+[[positions]]
+title = "Analytical Chemist's Assistant"
+organization = "CAFNR ESCL, University of Missouri"
+mentor = "Dr. Thomas Mawhinney"
+
+[[positions]]
+title = "Peer Learning Assistant"
+organization = "Department of Biochemistry, University of Missouri"
+mentor = "Dr. Christopher Lee and Dr. Susan Deutscher"
+
+[footer]
+hint = "Use Up/Down or j/k to navigate sections"
