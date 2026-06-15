@@ -1,13 +1,15 @@
 use std::{cell::RefCell, io, rc::Rc};
 
+use ratzilla::backend::webgl2::{FontAtlasConfig, WebGl2Backend, WebGl2BackendOptions};
 use ratzilla::event::KeyCode;
 use ratzilla::ratatui::{
     layout::{Alignment, Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
+    text::{Line, Span},
     widgets::{Block, Borders, List, ListItem, Paragraph, Wrap},
     Terminal,
 };
-use ratzilla::{DomBackend, WebRenderer};
+use ratzilla::WebRenderer;
 use serde::Deserialize;
 
 // Provide a no-op critical-section implementation for wasm32-unknown-unknown,
@@ -123,6 +125,7 @@ struct AppState {
     selected_section: usize,
     resume: ResumeData,
     sections: Vec<ResumeSection>,
+    last_cols: u16,
 }
 
 impl AppState {
@@ -154,6 +157,32 @@ fn bullets(lines: &[String]) -> String {
         .collect::<Vec<String>>()
         .join("\n")
 }
+
+#[cfg(target_arch = "wasm32")]
+fn open_external_link(url: &str) {
+    if let Some(window) = ratzilla::web_sys::window() {
+        let _ = window.open_with_url_and_target(url, "_blank");
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn open_external_link(_url: &str) {}
+
+const LINKS_LINE: &str = "Links: LinkedIn | GitHub | Scholar";
+const NAV_WIDTH_COLS: u16 = 30;
+
+const BG_BASE: Color = Color::Rgb(24, 34, 49);
+const SURFACE: Color = Color::Rgb(43, 54, 71);
+const SURFACE_ALT: Color = Color::Rgb(54, 68, 89);
+const TEXT_PRIMARY: Color = Color::Rgb(222, 229, 239);
+const TEXT_MUTED: Color = Color::Rgb(167, 178, 196);
+const ACCENT_BLUE: Color = Color::Rgb(136, 192, 208);
+const LINK_YELLOW: Color = Color::Rgb(214, 195, 124);
+const LINK_ORANGE: Color = Color::Rgb(210, 156, 110);
+const LINK_RED: Color = Color::Rgb(195, 121, 125);
+
+const PANEL_BORDER_STYLE: Style = Style::new().fg(ACCENT_BLUE);
+const PANEL_TITLE_STYLE: Style = Style::new().fg(TEXT_PRIMARY).add_modifier(Modifier::BOLD);
 
 fn render_sections(resume: &ResumeData) -> Vec<ResumeSection> {
     let mut sections = Vec::new();
@@ -279,6 +308,7 @@ fn build_app_state() -> AppState {
             selected_section: 0,
             sections: render_sections(&resume),
             resume,
+            last_cols: 120,
         },
         Err(err) => {
             let resume = ResumeData {
@@ -324,13 +354,20 @@ fn build_app_state() -> AppState {
                 selected_section: 0,
                 resume,
                 sections,
+                last_cols: 120,
             }
         }
     }
 }
 
 fn main() -> io::Result<()> {
-    let backend = DomBackend::new()?;
+    // Use a dynamic font atlas for smoother text rendering than the static default atlas.
+    let backend = WebGl2Backend::new_with_options(
+        WebGl2BackendOptions::new().font_atlas_config(FontAtlasConfig::dynamic(
+            &["Fira Code", "Menlo", "Consolas", "monospace"],
+            16.0,
+        )),
+    )?;
     let mut terminal = Terminal::new(backend)?;
     let app_state = build_app_state();
 
@@ -358,8 +395,8 @@ fn main() -> io::Result<()> {
     })?;
 
     // Click on a nav list item selects that section.
-    // Layout: header = 3 rows, nav box border-top = 1 row, items start at row 4.
-    // Left nav panel is the first 34% of terminal columns.
+    // Layout: header = 4 rows, nav box border-top = 1 row, items start at row 5.
+    // Left nav panel is the first 18% of terminal columns.
     terminal.on_mouse_event({
         let state = state.clone();
         move |mouse_event| {
@@ -368,12 +405,52 @@ fn main() -> io::Result<()> {
                 MouseEventKind::SingleClick(_) | MouseEventKind::ButtonDown(_) => {}
                 _ => return,
             }
+
+            // Header links row (row index 2): Links: LinkedIn | GitHub | Scholar
+            let maybe_link = {
+                let st = state.borrow();
+                let links_line = LINKS_LINE;
+                let line_len = links_line.chars().count() as u16;
+                let start_col = st.last_cols.saturating_sub(line_len) / 2;
+                let end_col = start_col.saturating_add(line_len);
+                // Header occupies rows 0..3 with bottom border at row 4.
+                // Accept clicks across the full header band for robust hit-testing.
+                let in_links_rows = mouse_event.row <= 4;
+
+                if in_links_rows
+                    && mouse_event.col >= start_col
+                    && mouse_event.col < end_col
+                {
+                    let rel = mouse_event.col - start_col;
+                    if (7..15).contains(&rel) {
+                        Some(st.resume.contact.linkedin.clone())
+                    } else if (18..24).contains(&rel) {
+                        Some(st.resume.contact.github.clone())
+                    } else if (27..34).contains(&rel) {
+                        Some(st.resume.contact.scholar.clone())
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            };
+
+            if let Some(url) = maybe_link {
+                open_external_link(&url);
+                return;
+            }
+
+            // Only react to clicks in the left navigation panel.
+            if mouse_event.col >= NAV_WIDTH_COLS {
+                return;
+            }
             let state_ref = state.borrow();
             let section_count = state_ref.sections.len();
             drop(state_ref);
 
-            // Row 0-2: header; row 3: nav top-border; rows 4.. nav items
-            let header_rows: u16 = 4; // header block (3) + top border (1)
+            // Row 0-3: header area; row 4: nav top-border; rows 5.. nav items
+            let header_rows: u16 = 5;
             if mouse_event.row < header_rows {
                 return;
             }
@@ -385,34 +462,67 @@ fn main() -> io::Result<()> {
     })?;
 
     terminal.draw_web(move |frame| {
-        let state = state.borrow();
+        let mut state = state.borrow_mut();
         let area = frame.area();
+        state.last_cols = area.width;
 
         let layout = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Length(3),
+                Constraint::Length(4),
                 Constraint::Min(8),
-                Constraint::Length(2),
+                Constraint::Length(1),
             ])
             .split(area);
 
-        let header = Paragraph::new(format!(
-            "{} | {}",
-            state.resume.header.title, state.resume.header.subtitle
-        ))
+        let header = Paragraph::new(vec![
+            Line::from(state.resume.header.title.clone()),
+            Line::from(state.resume.header.subtitle.clone()),
+            Line::from(vec![
+                Span::styled("Links: ", Style::default().fg(TEXT_MUTED)),
+                Span::styled(
+                    "LinkedIn",
+                    Style::default()
+                        .fg(LINK_YELLOW)
+                        .add_modifier(Modifier::UNDERLINED | Modifier::BOLD),
+                ),
+                Span::styled(" | ", Style::default().fg(TEXT_MUTED)),
+                Span::styled(
+                    "GitHub",
+                    Style::default()
+                        .fg(LINK_ORANGE)
+                        .add_modifier(Modifier::UNDERLINED | Modifier::BOLD),
+                ),
+                Span::styled(" | ", Style::default().fg(TEXT_MUTED)),
+                Span::styled(
+                    "Scholar",
+                    Style::default()
+                        .fg(LINK_RED)
+                        .add_modifier(Modifier::UNDERLINED | Modifier::BOLD),
+                ),
+            ]),
+        ])
             .alignment(Alignment::Center)
             .style(
                 Style::default()
-                    .fg(Color::LightGreen)
+                    .fg(ACCENT_BLUE)
                     .add_modifier(Modifier::BOLD),
             )
-            .block(Block::default().borders(Borders::BOTTOM));
+            .block(
+                Block::default()
+                    .style(Style::default().bg(BG_BASE))
+                    .borders(Borders::BOTTOM)
+                    .border_style(Style::default().fg(SURFACE_ALT)),
+            );
         frame.render_widget(header, layout[0]);
 
         let body = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(34), Constraint::Percentage(66)])
+            // Keep navigation readable (fixed width) while letting content use the rest.
+            .constraints([
+                Constraint::Length(NAV_WIDTH_COLS),
+                Constraint::Min(20),
+            ])
             .split(layout[1]);
 
         let nav_items: Vec<ListItem> = state
@@ -423,10 +533,10 @@ fn main() -> io::Result<()> {
                 let prefix = if index == state.selected_section { "> " } else { "  " };
                 let style = if index == state.selected_section {
                     Style::default()
-                        .fg(Color::Yellow)
+                        .fg(ACCENT_BLUE)
                         .add_modifier(Modifier::BOLD)
                 } else {
-                    Style::default().fg(Color::Gray)
+                    Style::default().fg(TEXT_PRIMARY)
                 };
                 ListItem::new(format!("{prefix}{}", section.title)).style(style)
             })
@@ -435,25 +545,30 @@ fn main() -> io::Result<()> {
         let navigation = List::new(nav_items).block(
             Block::default()
                 .title(" Sections ")
+                .title_style(PANEL_TITLE_STYLE)
+                .style(Style::default().bg(SURFACE))
                 .borders(Borders::ALL)
-                .border_style(Style::default().fg(Color::Cyan)),
+                .border_style(PANEL_BORDER_STYLE),
         );
         frame.render_widget(navigation, body[0]);
 
         let content = &state.sections[state.selected_section];
         let details = Paragraph::new(content.body.clone())
             .wrap(Wrap { trim: false })
+            .style(Style::default().fg(TEXT_PRIMARY).bg(SURFACE))
             .block(
                 Block::default()
                     .title(format!(" {} ", content.title.clone()))
+                    .title_style(PANEL_TITLE_STYLE)
+                    .style(Style::default().bg(SURFACE))
                     .borders(Borders::ALL)
-                    .border_style(Style::default().fg(Color::LightBlue)),
+                    .border_style(PANEL_BORDER_STYLE),
             );
         frame.render_widget(details, body[1]);
 
         let footer = Paragraph::new(state.resume.footer.hint.clone())
             .alignment(Alignment::Center)
-            .style(Style::default().fg(Color::DarkGray));
+            .style(Style::default().fg(TEXT_MUTED).bg(BG_BASE));
         frame.render_widget(footer, layout[2]);
     });
 
