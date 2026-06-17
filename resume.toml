@@ -1,6 +1,9 @@
 [header]
 title = "Kyle Stiers, Ph.D."
 subtitle = "Sr. Data Scientist | Computational Biology | Bioinformatics"
+download_label = "Download CV"
+download_url = ""
+download_filename = "Kyle_Stiers_CV.pdf"
 
 [contact]
 scholar = "https://scholar.google.com/citations?user=6eZxnlIAAAAJ&hl=en&oi=ao"

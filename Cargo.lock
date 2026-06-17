@@ -347,9 +347,11 @@ name = "kyle_resume_tui"
 version = "0.1.0"
 dependencies = [
  "critical-section",
+ "js-sys",
  "ratzilla",
  "serde",
  "toml",
+ "wasm-bindgen",
 ]
 
 [[package]]
