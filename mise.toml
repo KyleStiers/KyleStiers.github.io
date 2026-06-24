@@ -1,0 +1,44 @@
+[env]
+CARGO_HTTP_TIMEOUT = "180"
+CARGO_NET_RETRY = "10"
+CARGO_HTTP_MULTIPLEXING = "false"
+
+[tasks.serve]
+description = "Serve the WASM app locally with live reload"
+run = "exec trunk serve --open"
+
+[tasks.serve-no-open]
+description = "Serve locally without opening the browser"
+run = "exec trunk serve"
+
+[tasks.serve-8081]
+description = "Serve on alternate port 8081"
+run = "exec trunk serve --port 8081 --open"
+
+[tasks.stop-serve]
+description = "Stop any trunk server listening on port 8080"
+run = "lsof -tiTCP:8080 -sTCP:LISTEN | xargs -I{} kill {}"
+
+[tasks.serve-bg]
+description = "Start trunk serve in background on port 8080"
+run = "mkdir -p .tmp && nohup trunk serve --port 8080 > .tmp/trunk.log 2>&1 & pid=$!; echo $pid > .tmp/trunk.pid; echo started trunk with pid $pid"
+
+[tasks.stop-serve-bg]
+description = "Stop background trunk server and clear pid file"
+run = "if [ -f .tmp/trunk.pid ]; then kill $(cat .tmp/trunk.pid) 2>/dev/null || true; rm -f .tmp/trunk.pid; fi; lsof -tiTCP:8080 -sTCP:LISTEN | xargs -I{} kill {} 2>/dev/null || true"
+
+[tasks.serve-log]
+description = "Tail background trunk server log"
+run = "tail -f .tmp/trunk.log"
+
+[tasks.serve-status]
+description = "Show whether trunk is listening on port 8080"
+run = "lsof -nP -iTCP:8080 -sTCP:LISTEN || true"
+
+[tasks.check]
+description = "Run rust compile checks"
+run = "cargo check"
+
+[tasks.build]
+description = "Build release bundle for deployment"
+run = "trunk build --release"

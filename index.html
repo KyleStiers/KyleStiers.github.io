@@ -1,42 +1,409 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/fira_code.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.3/dist/jspdf.plugin.autotable.min.js"></script>
+    <link data-trunk rel="rust" />
+    <title>Kyle Stiers Resume</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
 
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: radial-gradient(circle at 16% 0%, #33435f 0%, #27344b 42%, #1a2538 100%);
+      }
 
-    <title>Kylestiers.GitHub.io by KyleStiers</title>
+      body {
+        font-family: "Fira Code", monospace;
+      }
+
+      pre {
+        margin: 0;
+      }
+
+      /* Remove focus ring on the terminal grid */
+      #grid {
+        outline: none;
+      }
+
+      /* Keep the terminal canvas tied to viewport size so backend auto-resize works. */
+      body > canvas {
+        display: block;
+        width: 100vw !important;
+        height: 100vh !important;
+      }
+    </style>
+    <script>
+      window.setResumeScale = (scale) => {
+        const clamped = Math.min(1.5, Math.max(0.85, Number(scale) || 1));
+        document.body.style.zoom = String(clamped);
+
+        // Prompt the canvas terminal to recompute its visible grid after browser zoom.
+        window.dispatchEvent(new Event('resize'));
+        requestAnimationFrame(() => {
+          const grid = document.getElementById('grid');
+          if (grid) grid.focus();
+        });
+
+        return clamped;
+      };
+
+      window.generateResumePdf = (markdown, fileName) => {
+        const jsPdfNamespace = window.jspdf;
+        if (!jsPdfNamespace || typeof jsPdfNamespace.jsPDF !== 'function') return;
+
+        const doc = new jsPdfNamespace.jsPDF({ unit: 'pt', format: 'letter' });
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const marginX = 52;
+        const marginY = 56;
+        const contentWidth = pageWidth - marginX * 2;
+        let y = marginY;
+
+        const ensureSpace = (required = 16) => {
+          if (y + required > pageHeight - marginY) {
+            doc.addPage();
+            y = marginY;
+          }
+        };
+
+        const writeWrapped = (text, opts = {}) => {
+          const {
+            size = 11.5,
+            style = 'normal',
+            color = [28, 36, 52],
+            indent = 0,
+            lineHeight = 15,
+            extraGap = 2,
+            align = 'left',
+          } = opts;
+
+          const width = Math.max(60, contentWidth - indent);
+          const lines = doc.splitTextToSize(text, width);
+          doc.setFont('helvetica', style);
+          doc.setFontSize(size);
+          doc.setTextColor(...color);
+
+          for (const line of lines) {
+            ensureSpace(lineHeight + extraGap);
+            if (align === 'center') {
+              doc.text(line, pageWidth / 2, y, { align: 'center' });
+            } else {
+              doc.text(line, marginX + indent, y);
+            }
+            y += lineHeight;
+          }
+          y += extraGap;
+        };
+
+        const rawLines = String(markdown || '').split('\n');
+        let name = '';
+        let subtitle = '';
+        let linkedInUrl = '';
+        let githubUrl = '';
+        let scholarUrl = '';
+        let contentStartIndex = -1;
+
+        for (let i = 0; i < rawLines.length; i += 1) {
+          const line = rawLines[i].trim();
+          if (!line) continue;
+
+          if (line.startsWith('# ') && !name) {
+            name = line.slice(2).trim();
+            continue;
+          }
+
+          if (line.startsWith('## ') && contentStartIndex === -1) {
+            contentStartIndex = i;
+            continue;
+          }
+
+          if (line.startsWith('LinkedIn:')) {
+            linkedInUrl = line.slice('LinkedIn:'.length).trim();
+            continue;
+          }
+
+          if (line.startsWith('GitHub:')) {
+            githubUrl = line.slice('GitHub:'.length).trim();
+            continue;
+          }
+
+          if (line.startsWith('Scholar:')) {
+            scholarUrl = line.slice('Scholar:'.length).trim();
+            continue;
+          }
+
+          if (
+            !subtitle &&
+            !line.startsWith('Links:') &&
+            !line.startsWith('Location:') &&
+            !line.startsWith('- ')
+          ) {
+            subtitle = line;
+          }
+        }
+
+        const fitSingleLine = (text, opts = {}) => {
+          const {
+            maxWidth = contentWidth,
+            preferredSize = 14,
+            minSize = 10,
+            style = 'normal',
+          } = opts;
+
+          doc.setFont('helvetica', style);
+          let size = preferredSize;
+          while (size > minSize) {
+            doc.setFontSize(size);
+            if (doc.getTextWidth(text) <= maxWidth) break;
+            size -= 0.5;
+          }
+
+          doc.setFontSize(size);
+          let fitted = text;
+          if (doc.getTextWidth(fitted) > maxWidth) {
+            while (fitted.length > 1 && doc.getTextWidth(`${fitted}…`) > maxWidth) {
+              fitted = fitted.slice(0, -1);
+            }
+            fitted = `${fitted}…`;
+          }
+
+          return { text: fitted, size };
+        };
+
+        const writeCenteredSingleLine = (text, opts = {}) => {
+          const {
+            preferredSize = 14,
+            minSize = 10,
+            style = 'normal',
+            color = [28, 36, 52],
+            lineHeight = 16,
+          } = opts;
+
+          const fitted = fitSingleLine(text, {
+            maxWidth: contentWidth,
+            preferredSize,
+            minSize,
+            style,
+          });
+
+          ensureSpace(lineHeight);
+          doc.setFont('helvetica', style);
+          doc.setFontSize(fitted.size);
+          doc.setTextColor(...color);
+          doc.text(fitted.text, pageWidth / 2, y, { align: 'center' });
+          y += lineHeight;
+        };
+
+        const drawCenteredLinksLine = (items) => {
+          const prefix = 'Links: ';
+          const separator = ' | ';
+          let size = 12;
+
+          const totalWidthAtSize = (fontSize) => {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(fontSize);
+            let total = doc.getTextWidth(prefix);
+            items.forEach((item, idx) => {
+              total += doc.getTextWidth(item.label);
+              if (idx < items.length - 1) total += doc.getTextWidth(separator);
+            });
+            return total;
+          };
+
+          while (size > 9 && totalWidthAtSize(size) > contentWidth) {
+            size -= 0.5;
+          }
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(size);
+          const totalWidth = totalWidthAtSize(size);
+          let x = (pageWidth - totalWidth) / 2;
+
+          ensureSpace(16);
+          doc.setTextColor(108, 120, 141);
+          doc.text(prefix, x, y);
+          x += doc.getTextWidth(prefix);
+
+          items.forEach((item, idx) => {
+            const labelWidth = doc.getTextWidth(item.label);
+            if (item.url) {
+              doc.setTextColor(22, 69, 120);
+              doc.textWithLink(item.label, x, y, { url: item.url });
+              doc.setDrawColor(22, 69, 120);
+              doc.line(x, y + 1.5, x + labelWidth, y + 1.5);
+            } else {
+              doc.setTextColor(108, 120, 141);
+              doc.text(item.label, x, y);
+            }
+            x += labelWidth;
+
+            if (idx < items.length - 1) {
+              doc.setTextColor(108, 120, 141);
+              doc.text(separator, x, y);
+              x += doc.getTextWidth(separator);
+            }
+          });
+
+          y += 16;
+        };
+
+        // Fixed header shape:
+        // Name
+        // Persona | Persona | Persona
+        // Links: 1 | 2 | 3
+        writeCenteredSingleLine(name || 'Resume', {
+          preferredSize: 24,
+          minSize: 16,
+          style: 'bold',
+          color: [20, 41, 74],
+          lineHeight: 28,
+        });
+
+        writeCenteredSingleLine(subtitle || '', {
+          preferredSize: 14.5,
+          minSize: 10.5,
+          style: 'bold',
+          color: [30, 38, 53],
+          lineHeight: 19,
+        });
+
+        drawCenteredLinksLine([
+          { label: 'LinkedIn', url: linkedInUrl },
+          { label: 'GitHub', url: githubUrl },
+          { label: 'Scholar', url: scholarUrl },
+        ]);
+
+        ensureSpace(10);
+        doc.setDrawColor(191, 203, 219);
+        doc.line(marginX, y, pageWidth - marginX, y);
+        y += 14;
+
+        const lines = contentStartIndex >= 0 ? rawLines.slice(contentStartIndex) : [];
+        let firstSectionRendered = false;
+
+        for (const raw of lines) {
+          const line = raw.trim();
+
+          if (!line) {
+            y += 4;
+            continue;
+          }
+
+          if (line.startsWith('## ')) {
+            // Section cadence after first section: separator line -> whitespace -> section title.
+            if (firstSectionRendered) {
+              y += 6;
+              ensureSpace(12);
+              doc.setDrawColor(191, 203, 219);
+              doc.line(marginX, y, pageWidth - marginX, y);
+              y += 12;
+            }
+
+            writeWrapped(line.slice(3), {
+              size: 15,
+              style: 'bold',
+              color: [22, 69, 120],
+              lineHeight: 19,
+              extraGap: 2,
+            });
+
+            y += 4;
+            firstSectionRendered = true;
+            continue;
+          }
+
+          if (line.startsWith('### ')) {
+            writeWrapped(line.slice(4), {
+              size: 12.5,
+              style: 'bold',
+              color: [33, 52, 84],
+              lineHeight: 16,
+              extraGap: 2,
+            });
+            continue;
+          }
+
+          if (line.startsWith('- ')) {
+            writeWrapped(`• ${line.slice(2)}`, {
+              size: 11.4,
+              style: 'normal',
+              color: [34, 43, 59],
+              indent: 10,
+              lineHeight: 15,
+              extraGap: 1,
+            });
+            continue;
+          }
+
+          writeWrapped(line, {
+            size: 11,
+            style: 'normal',
+            color: [30, 38, 53],
+            lineHeight: 14,
+            extraGap: 2,
+          });
+        }
+        doc.save(fileName || 'resume.pdf');
+      };
+
+      window.addEventListener('TrunkApplicationStarted', () => {
+        // The WebGL2 backend renders into a bare <canvas> (no #grid id),
+        // so locate whichever element the terminal actually uses.
+        const terminalEl = () =>
+          document.getElementById('grid') || document.querySelector('canvas');
+
+        // Wait for two animation frames so draw_web's first render
+        // has time to append the canvas to the DOM before we focus it.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const el = terminalEl();
+            if (el) el.focus();
+          });
+        });
+
+        // Keep keyboard focus inside the terminal: stop Tab (and other
+        // navigation keys) from escaping to the browser chrome / URL bar.
+        // Runs in the capture phase so the default action is cancelled
+        // before the browser moves focus, while ratzilla still receives
+        // the key through its own listener.
+        const trapKeys = new Set([
+          'Tab',
+          'ArrowUp',
+          'ArrowDown',
+          'ArrowLeft',
+          'ArrowRight',
+          ' ',
+        ]);
+        // Terminal control combos to keep from triggering browser actions
+        // (Ctrl+L focuses the URL bar, Ctrl+C copies, Ctrl+U view-source).
+        const trapCtrlKeys = new Set(['c', 'l', 'u']);
+        window.addEventListener(
+          'keydown',
+          (event) => {
+            if (trapKeys.has(event.key)) {
+              event.preventDefault();
+            } else if (
+              event.ctrlKey &&
+              !event.metaKey &&
+              trapCtrlKeys.has(event.key.toLowerCase())
+            ) {
+              event.preventDefault();
+            }
+          },
+          true,
+        );
+      });
+    </script>
   </head>
-
-  <body>
-    <header>
-      <div class="inner">
-        <h1>Kyle Stiers</h1>
-        <h3>A procedurally generated stream of conciousness</h3>
-        <a href="https://github.com/KyleStiers" class="button"><small>Follow me on</small> GitHub</a>
-      </div>
-    </header>
-
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-		<section id="main-content"> 
-			<h3><a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome! Cliché under construction notice here.</h3> 
-			<p> Coming soon! </p>
-		</section>
-
-          <!--<p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p> -->
-        
-      </div>
-    </div>
-
-  
-  </body>
+  <body></body>
 </html>
