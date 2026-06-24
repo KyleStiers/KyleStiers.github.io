@@ -357,14 +357,51 @@
       };
 
       window.addEventListener('TrunkApplicationStarted', () => {
+        // The WebGL2 backend renders into a bare <canvas> (no #grid id),
+        // so locate whichever element the terminal actually uses.
+        const terminalEl = () =>
+          document.getElementById('grid') || document.querySelector('canvas');
+
         // Wait for two animation frames so draw_web's first render
-        // has time to append the grid to the DOM before we focus it.
+        // has time to append the canvas to the DOM before we focus it.
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            const grid = document.getElementById('grid');
-            if (grid) grid.focus();
+            const el = terminalEl();
+            if (el) el.focus();
           });
         });
+
+        // Keep keyboard focus inside the terminal: stop Tab (and other
+        // navigation keys) from escaping to the browser chrome / URL bar.
+        // Runs in the capture phase so the default action is cancelled
+        // before the browser moves focus, while ratzilla still receives
+        // the key through its own listener.
+        const trapKeys = new Set([
+          'Tab',
+          'ArrowUp',
+          'ArrowDown',
+          'ArrowLeft',
+          'ArrowRight',
+          ' ',
+        ]);
+        // Terminal control combos to keep from triggering browser actions
+        // (Ctrl+L focuses the URL bar, Ctrl+C copies, Ctrl+U view-source).
+        const trapCtrlKeys = new Set(['c', 'l', 'u']);
+        window.addEventListener(
+          'keydown',
+          (event) => {
+            if (trapKeys.has(event.key)) {
+              event.preventDefault();
+            } else if (
+              event.ctrlKey &&
+              !event.metaKey &&
+              trapCtrlKeys.has(event.key.toLowerCase())
+            ) {
+              event.preventDefault();
+            }
+          },
+          true,
+        );
       });
     </script>
   </head>
