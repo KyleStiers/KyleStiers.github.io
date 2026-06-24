@@ -1,6 +1,27 @@
+awards = [
+	"Bayer Bronze Impact Award Recipient (April 2026)",
+	"Bayer Top Performer Award (December 2024)",
+	"Bayer Plant Biotech Leadership Life Award - Unlocking 3x faster sequence-capture capability team (December 2023)",
+	"Bayer Top Performer Award (December 2022)",
+	"Donald K. Anderson Graduate Research Assistant Award (April 2019)",
+	"Featured article in Structural Dynamics (2019 publications)",
+	"Invited Student Lecturer, American Crystallographic Association Meeting (July 2018)",
+	"Selected participant, UC San Diego Structural Bioinformatics Workshop and Hackathon - Python (May 2018)",
+	"Selected participant, UC San Diego Structural Bioinformatics Workshop and Hackathon - Java (June 2017)",
+	"Etter Student Lecturer Award, American Crystallographic Association Meeting (May 2017)",
+	"Invited Student Lecturer, American Crystallographic Association Meeting (May 2017)",
+	"American Crystallographic Association Travel Grant Recipient (March 2017)",
+	"Outstanding Poster in Molecular & Cellular Biology Award, Life Sciences Week (April 2017)",
+	"American Heart Association Pre-Doctoral Fellowship Recipient (July 2017 - June 2019; $52,000)",
+	"Excellence in Teaching with Technology Award (TA) Recipient (November 2016)",
+	"Featured as journal cover image in the Journal of Applied Crystallography (2016 publications)",
+	"Nominated for Rollins Society (March 2016)",
+	"NIH NIGMS T32 Training Grant Recipient (August 2015 - June 2017; $60,000)"
+]
+
 [header]
-title = "Kyle Stiers, Ph.D."
-subtitle = "Sr. Data Scientist | Computational Biology | Bioinformatics"
+title = "Kyle M. Stiers, Ph.D."
+subtitle = "Senior Data Scientist | Computational Biology | Bioinformatics"
 download_label = "Download CV"
 download_url = ""
 download_filename = "Kyle_Stiers_CV.pdf"
@@ -13,29 +34,29 @@ location = "Missouri, USA"
 
 [profile]
 summary = [
-	"Data scientist delivering value through deep learning, bioinformatics pipelines, and cloud infrastructure.",
+	"Senior Data Scientist utilizing cutting-edge deep learning models, building bioinformatics pipelines, and delivering value to stakeholders.",
 	"Formal training in protein biophysics, biochemistry, and structural biology.",
-	"Eight years combining biochemical research with computational biology, plus three years of industry data science and data engineering experience."
+	"Nine years of experience combining research with computational biology to solve problems and five years of industry experience with data science and data engineering applications."
 ]
 highlights = [
-	"Proficient in Python and R programming",
-	"Proficient in Nextflow for data-driven computational pipelines",
-	"Experienced leading and training teams on high-level scientific work and computational toolchains",
-	"Hands-on with Linux, Docker, AWS infrastructure, and distributed computing"
+	"Expert in Python and Nextflow, specializing in bioinformatics pipelines",
+	"Experienced with Linux, Docker, AWS cloud infrastructure, and distributed computing",
+	"Experienced in Terraform Infrastructure as Code and deploying CI/CD pipelines",
+	"Experienced leading and training others in high-level scientific work including design, implementation, and maintenance of computational toolchains"
 ]
 
 [[experience]]
 organization = "Bayer Crop Science"
-role = "Data Scientist in Gene Editing"
+role = "Senior Data Scientist in Gene Editing"
 dates = "Current"
 manager = "Dr. Ryan Williams"
 bullets = [
-	"Leading bioinformatics pipeline development in metagenomics, deep-learning protein-structure prediction, and gene editing applications",
-	"Building custom analytics software for gene-editing workflows in Python",
-	"Enabling Plant Biotechnology and Breeding teams to make key product-pipeline advancement decisions",
-	"Providing ad-hoc expertise on analytics standards and data-capture/egress best practices",
-	"Developing sequencing-platform automation infrastructure",
-	"Member of an internal deep-learning working group delivering state-of-the-art genomics applications"
+	"Leading efforts to build many bioinformatics pipelines including metagenomics and protein-structure prediction with AI models on millions of samples",
+	"Developing reproducible patterns for deploying applications within best-practices for use across Bayer",
+	"Building custom analytics software in the gene editing space with Python, enabling large portions of Plant Biotechnology and Breeding to make key advancement decisions in product pipelines",
+	"Providing ad-hoc expertise on gene editing analytics and best practices for data capture, analysis, and egress",
+	"Developing automation infrastructure for the sequencing platforms in use at Bayer",
+	"Developing state-of-the-art, fine-tuned deep-learning inference tools in genomics to generate value and increase agility in biotechnology"
 ]
 
 [[experience]]
@@ -44,12 +65,10 @@ role = "Computational Biologist"
 dates = "Prior role"
 manager = "Dr. Lyndon Coghill"
 bullets = [
-	"Built a custom GATK4.2 germline variant-calling pipeline using Nextflow, Bash, Python, and R",
-	"Designed workflows to handle both whole-exome and whole-genome sequencing data",
-	"Aligned pipeline design with Broad Institute best practices",
-	"Developed a Nextflow-wrapped Nvidia Clara Parabricks variant-calling pipeline",
-	"Implemented GPU-accelerated tooling to reduce processing time from raw reads to called variants",
-	"Built a custom pipeline for campus genomic-sequencing processing with automated QC and reporting"
+	"Custom built GATK4.2 germline variant calling pipeline using Nextflow, Bash, Python, and R, seamlessly handling both whole-exome and whole-genome sequencing data",
+	"Built to follow best practices defined by the Broad Institute",
+	"Developed a Nextflow-wrapped Nvidia Clara Parabricks variant calling pipeline with GPU-accelerated tools to dramatically reduce processing time from raw reads to called variants",
+	"Custom built pipeline for processing all genomic sequencing data on the MU campus, fully automated including QC and reporting"
 ]
 
 [[research]]
@@ -58,32 +77,33 @@ role = "Postdoctoral Scientist"
 mentor = "Dr. John Tanner"
 publications = "5"
 bullets = [
-	"Investigated structural-basis inhibition of proline-cycle enzymes as cancer-therapy targets",
-	"Developed computational techniques for structural differences across aldehyde dehydrogenase superfamily members",
-	"Developing software for novel molecular-dynamics analyses of substrate channeling in Proline utilization A enzyme"
+	"Investigating the structural basis of inhibition of proline cycle enzymes as cancer therapy targets",
+	"Developed computational techniques for studying differences in structure of members of the aldehyde dehydrogenase superfamily",
+	"Developing software to do novel analyses of molecular dynamics simulations to analyze substrate channeling in the Proline utilization A enzyme"
 ]
 
 [[research]]
 organization = "University of Missouri"
 role = "Graduate Research Assistant"
 mentor = "Dr. Lesa Beamer"
-publications = "15"
+publications = "16"
 bullets = [
-	"Identified molecular mechanisms of disease in phosphoglucomutase-1 (PGM1) deficiency",
+	"Identified the molecular mechanisms of disease in phosphoglucomutase-1 (PGM1) deficiency",
 	"Determined 16 structures of a superfamily member in multiple states at room and cryogenic temperatures",
-	"Developed custom scripts and software using R and Shiny to automate instrument-output analyses"
+	"Developed custom scripts and software primarily using R and Shiny to automate analyses from instrument output"
 ]
 
 [skills]
 software = [
-	"Python", "Bash", "Nextflow", "R", "AWS Cloud", "Nim", "Docker",
-	"scikit-learn", "Deep reinforcement learning", "llama.cpp", "LLMs for genomic sequence data (ESM2, HyenaDNA, ProtBERT)",
+	"Python", "Nextflow", "Bash", "Terraform", "AWS Cloud", "Rust", "Nim", "R", "Docker",
+	"machine learning with scikit-learn", "deep reinforcement learning", "llama.cpp",
+	"LLMs on genomic sequence data (ESM2/3, HyenaDNA, Evo1/2, etc.)",
 	"SLURM scheduling", "HPC"
 ]
 molecular_biology = [
 	"DNA and RNA extraction", "PCR", "subcloning", "transformation",
 	"bacterial protein expression", "bacmid cloning and expression in insect cells",
-	"protein purification", "anion exchange chromatography", "size-exclusion chromatography",
+	"protein purification", "anion exchange and size-exclusion chromatography",
 	"FPLC", "protein labeling", "SDS-PAGE", "enzyme kinetics"
 ]
 structural_biology = [
@@ -111,34 +131,20 @@ notes = [
 	"Minor certificates in Computer Science, Information Technology, and Chemistry"
 ]
 
-awards = [
-	"Bayer Plant Biotech Leadership Life Award - Unlocking 3x faster sequence-capture capability team (December 2023)",
-	"Bayer Top Performer Award (December 2022)",
-	"Donald K. Anderson Graduate Research Assistant Award (April 2019)",
-	"Featured article in Structural Dynamics (2019 publications)",
-	"Invited Student Lecturer, American Crystallographic Association Meeting (July 2018)",
-	"Selected participant, UC San Diego Structural Bioinformatics Workshop and Hackathon - Python (May 2018)",
-	"Selected participant, UC San Diego Structural Bioinformatics Workshop and Hackathon - Java (June 2017)",
-	"Etter Student Lecturer Award, American Crystallographic Association Meeting (May 2017)",
-	"Invited Student Lecturer, American Crystallographic Association Meeting (May 2017)",
-	"American Crystallographic Association Travel Grant Recipient (March 2017)",
-	"Outstanding Poster in Molecular & Cellular Biology Award, Life Sciences Week (April 2017)",
-	"American Heart Association Pre-Doctoral Fellowship Recipient (July 2017 - June 2019; $52,000)",
-	"Excellence in Teaching with Technology Award (TA) Recipient (November 2016)",
-	"Featured as journal cover image in the Journal of Applied Crystallography (2016 publications)",
-	"Nominated for Rollins Society (March 2016)",
-	"NIH NIGMS T32 Training Grant Recipient (August 2015 - June 2017; $60,000)"
-]
+[[positions]]
+title = "Senior Data Scientist in Gene Editing"
+organization = "Data Science & Intelligence, Bayer Crop Science"
+manager = "Dr. Ryan Williams"
 
 [[positions]]
 title = "Data Scientist in Gene Editing"
 organization = "Data Science & Analytics, Bayer Crop Science"
-mentor = "Dr. Robert Gaeta"
+manager = "Dr. Robert Gaeta"
 
 [[positions]]
 title = "Computational Biologist"
 organization = "Bioinformatics & Analytics Core, University of Missouri"
-mentor = "Dr. Lyndon Coghill"
+manager = "Dr. Lyndon Coghill"
 
 [[positions]]
 title = "Postdoctoral Scientist"

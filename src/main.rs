@@ -112,6 +112,19 @@ struct PositionEntry {
     title: String,
     organization: String,
     mentor: String,
+    manager: String,
+}
+
+impl PositionEntry {
+    fn guide_label_and_name(&self) -> Option<(&str, &str)> {
+        if !self.manager.trim().is_empty() {
+            Some(("Manager", self.manager.trim()))
+        } else if !self.mentor.trim().is_empty() {
+            Some(("Mentor", self.mentor.trim()))
+        } else {
+            None
+        }
+    }
 }
 
 #[derive(Clone, Default, Deserialize)]
@@ -368,10 +381,14 @@ fn build_resume_markdown(resume: &ResumeData) -> String {
 
     out.push_str("## Positions\n");
     for entry in &resume.positions {
-        out.push_str(&format!(
-            "- {} | {} (Mentor: {})\n",
-            entry.title, entry.organization, entry.mentor
-        ));
+        if let Some((label, name)) = entry.guide_label_and_name() {
+            out.push_str(&format!(
+                "- {} | {} ({}: {})\n",
+                entry.title, entry.organization, label, name
+            ));
+        } else {
+            out.push_str(&format!("- {} | {}\n", entry.title, entry.organization));
+        }
     }
     out.push('\n');
 
@@ -508,11 +525,11 @@ fn render_sections(resume: &ResumeData) -> Vec<ResumeSection> {
     let positions_body = resume
         .positions
         .iter()
-        .map(|entry| {
-            format!(
-                "{}\n{}\nMentor: {}",
-                entry.title, entry.organization, entry.mentor
-            )
+        .map(|entry| match entry.guide_label_and_name() {
+            Some((label, name)) => {
+                format!("{}\n{}\n{}: {}", entry.title, entry.organization, label, name)
+            }
+            None => format!("{}\n{}", entry.title, entry.organization),
         })
         .collect::<Vec<String>>()
         .join("\n\n");
